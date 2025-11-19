@@ -5,9 +5,9 @@ import torch
 model = YOLO("yolo11x-pose.pt")
 
 results = model("ex1.jpg")
-# 1人目のキー・ポイント(x,y)を獲得する．
-# 2人目はresults[0].keypoints.data[1]に格納されている．
-nodes = results[0].keypoints.data[0][:, :2]
+# 1人目のキーポイント(x,y)を獲得する．
+# 2人目はresults[0].keypoints.xy[1]に格納されている．
+nodes = results[0].keypoints.xy[0]
 
 # 骨格のリンク
 links = [
@@ -23,12 +23,6 @@ links = [
     [6, 12],
     [5, 6],
     [11, 12],
-    [4, 2],
-    [2, 0],
-    [0, 1],
-    [1, 3],
-    [4, 6],
-    [5, 3],
 ]
 
 # 入力画像
@@ -43,8 +37,27 @@ for n1, n2 in links:
         # 2つの座標を整数化し，テンソルからリストにする．
         nodes[n1].to(torch.int).tolist(),
         nodes[n2].to(torch.int).tolist(),
-        (0, 255, 0),
+        (0, 0, 255),
         thickness=2,
+    )
+ignore_indices = [0, 1, 2, 3, 4]  # 左目・右目
+
+for i in range(len(nodes)):
+    # 目のキーポイントはスキップ
+    if i in ignore_indices:
+        continue
+
+    x, y = nodes[i]
+    if x * y == 0:
+        continue
+
+    center = (int(x.item()), int(y.item()))
+    cv2.circle(
+        img,
+        center,
+        4,
+        (0, 255, 255),  # 黄色
+        thickness=-1,
     )
 
 # 画像を画面に表示する．
