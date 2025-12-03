@@ -41,7 +41,7 @@ def draw_pose_on_gray(frame, results, color=(0,0,255)):
                 x, y = nodes[i]
                 if x*y==0:
                     continue
-                cv2.circle(draw, (int(x.item()), int(y.item())), 4, color, -1)
+                cv2.circle(draw, (int(x.item()), int(y.item())), 4, (0, 255, 255), -1)
     return draw
 
 # 動画の長さを比較して長い方を決める
